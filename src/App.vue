@@ -5,11 +5,13 @@
       Currently, it's {{ currentTemp }}° on Mars with a high of {{ hiTemp }}°
       and a low of {{ lowTemp }}°.
     </p>
+    <canvas id="chart" height="500" width="500"></canvas>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Chart from "chart.js";
 
 export default {
   name: "App",
@@ -18,13 +20,59 @@ export default {
       search: null,
       currentTemp: null,
       hiTemp: null,
-      lowTemp: null
+      lowTemp: null,
+      chart: null
     };
   },
   methods: {
     // Convert the temperatures to Fahrenheit
     convertToFahrenheit(degrees) {
       return degrees * (9 / 5) + 32;
+    },
+    generateChart() {
+      const ctx = document.getElementById("chart");
+      const lineChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+          datasets: [
+            {
+              label: "# of Votes",
+              data: [12, 19, 3, 5, 2, 3],
+              backgroundColor: [
+                "rgba(255, 99, 132, 0.2)",
+                "rgba(54, 162, 235, 0.2)",
+                "rgba(255, 206, 86, 0.2)",
+                "rgba(75, 192, 192, 0.2)",
+                "rgba(153, 102, 255, 0.2)",
+                "rgba(255, 159, 64, 0.2)"
+              ],
+              borderColor: [
+                "rgba(255, 99, 132, 1)",
+                "rgba(54, 162, 235, 1)",
+                "rgba(255, 206, 86, 1)",
+                "rgba(75, 192, 192, 1)",
+                "rgba(153, 102, 255, 1)",
+                "rgba(255, 159, 64, 1)"
+              ],
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  beginAtZero: true
+                }
+              }
+            ]
+          }
+        }
+      });
+
+      this.chart = lineChart;
     }
   },
   mounted() {
@@ -43,6 +91,7 @@ export default {
         this.hiTemp = this.convertToFahrenheit(response.data[sols[6]].AT.mx);
         this.lowTemp = this.convertToFahrenheit(response.data[sols[6]].AT.mn);
       });
+    this.generateChart();
   }
 };
 </script>
