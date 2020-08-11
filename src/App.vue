@@ -21,7 +21,7 @@ export default {
       currentTemp: null,
       hiTemp: null,
       lowTemp: null,
-      chart: null
+      sols: []
     };
   },
   methods: {
@@ -30,6 +30,10 @@ export default {
       return degrees * (9 / 5) + 32;
     },
     generateChart() {
+      // const labels = [];
+      // this.sols.forEach(sol => {
+      //   console.log(sol);
+      // });
       const ctx = document.getElementById("chart");
       const lineChart = new Chart(ctx, {
         type: "line",
@@ -37,38 +41,10 @@ export default {
           labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
           datasets: [
             {
-              label: "# of Votes",
-              data: [12, 19, 3, 5, 2, 3],
-              backgroundColor: [
-                "rgba(255, 99, 132, 0.2)",
-                "rgba(54, 162, 235, 0.2)",
-                "rgba(255, 206, 86, 0.2)",
-                "rgba(75, 192, 192, 0.2)",
-                "rgba(153, 102, 255, 0.2)",
-                "rgba(255, 159, 64, 0.2)"
-              ],
-              borderColor: [
-                "rgba(255, 99, 132, 1)",
-                "rgba(54, 162, 235, 1)",
-                "rgba(255, 206, 86, 1)",
-                "rgba(75, 192, 192, 1)",
-                "rgba(153, 102, 255, 1)",
-                "rgba(255, 159, 64, 1)"
-              ],
+              data: [this.hiTemp, 4],
               borderWidth: 1
             }
           ]
-        },
-        options: {
-          scales: {
-            yAxes: [
-              {
-                ticks: {
-                  beginAtZero: true
-                }
-              }
-            ]
-          }
         }
       });
 
@@ -84,7 +60,23 @@ export default {
         // Get the sols available in the data
         const sols = response.data.sol_keys;
 
-        // Map the current sol to the current average temperature. I'm making an assumption here that the last item in the array is the current day and the previous six items in the array are the previous six days
+        // Convert data to array
+        const dataArray = Object.entries(response.data);
+        // Loop through data object to get the previous six days
+        dataArray.forEach((data, index) => {
+          if (index <= 5) {
+            // Create a new object to structure the sol data
+            const dataObject = {};
+            // Add the sol day as the first item in new object
+            dataObject[0] = data[0];
+            // Add the atmospheric temperature object as the second item in the new object
+            dataObject[1] = data[1].AT;
+            // Push the new object to the sol array
+            this.sols.push(dataObject);
+          }
+        });
+
+        // Map the current sol to the current average temperature
         this.currentTemp = this.convertToFahrenheit(
           response.data[sols[6]].AT.av
         );
