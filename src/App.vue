@@ -5,6 +5,7 @@
       Currently, it's {{ currentTemp }}° on Mars with a high of {{ hiTemp }}°
       and a low of {{ lowTemp }}°.
     </p>
+    <button @click="generateChart">Generate Chart</button>
     <canvas id="chart" height="500" width="500"></canvas>
   </div>
 </template>
@@ -30,28 +31,68 @@ export default {
       return degrees * (9 / 5) + 32;
     },
     generateChart() {
-      // const labels = [];
-      // this.sols.forEach(sol => {
-      //   console.log(sol);
-      // });
       const ctx = document.getElementById("chart");
       const lineChart = new Chart(ctx, {
         type: "line",
         data: {
-          labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+          labels: [
+            this.sols[0][0],
+            this.sols[1][0],
+            this.sols[2][0],
+            this.sols[3][0],
+            this.sols[4][0],
+            this.sols[5][0]
+          ],
           datasets: [
             {
-              data: [this.hiTemp, 4],
-              borderWidth: 1
+              data: [
+                this.sols[0][1].av,
+                this.sols[1][1].av,
+                this.sols[2][1].av,
+                this.sols[3][1].av,
+                this.sols[4][1].av,
+                this.sols[5][1].av
+              ],
+              borderWidth: 2,
+              borderColor: "red",
+              backgroundColor: "rgba(0, 0, 0, 0)"
             }
           ]
+        },
+        options: {
+          legend: {
+            display: false
+          },
+          scales: {
+            yAxes: [
+              {
+                gridLines: {
+                  display: false
+                },
+                ticks: {
+                  display: false
+                }
+              }
+            ],
+            xAxes: [
+              {
+                gridLines: {
+                  display: false
+                },
+                ticks: {
+                  display: false
+                }
+              }
+            ]
+          },
+          maintainAspectRatio: false
         }
       });
 
       this.chart = lineChart;
     }
   },
-  mounted() {
+  created() {
     axios
       .get(
         `https://api.nasa.gov/insight_weather/?api_key=${process.env.VUE_APP_API_KEY}&feedtype=json&ver=1.0`
@@ -83,7 +124,6 @@ export default {
         this.hiTemp = this.convertToFahrenheit(response.data[sols[6]].AT.mx);
         this.lowTemp = this.convertToFahrenheit(response.data[sols[6]].AT.mn);
       });
-    this.generateChart();
   }
 };
 </script>
